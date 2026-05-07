@@ -2,15 +2,9 @@ package registry
 
 import "testing"
 
-func TestCodexFreeModelsExcludeGPT55(t *testing.T) {
-	model := findModelInfo(GetCodexFreeModels(), "gpt-5.5")
-	if model != nil {
-		t.Fatal("expected codex free tier to NOT include gpt-5.5")
-	}
-}
-
 func TestCodexStaticModelsIncludeGPT55(t *testing.T) {
 	tierModels := map[string][]*ModelInfo{
+		"free": GetCodexFreeModels(),
 		"team": GetCodexTeamModels(),
 		"plus": GetCodexPlusModels(),
 		"pro":  GetCodexProModels(),
@@ -69,7 +63,7 @@ func assertGPT55ModelInfo(t *testing.T, source string, model *ModelInfo) {
 	if model.Description != "Frontier model for complex coding, research, and real-world work." {
 		t.Fatalf("%s description mismatch: got %q", source, model.Description)
 	}
-	if model.ContextLength != 272000 {
+	if model.ContextLength != gpt55ContextLength {
 		t.Fatalf("%s context length mismatch: got %d", source, model.ContextLength)
 	}
 	if model.MaxCompletionTokens != 128000 {

@@ -17,6 +17,7 @@ import (
 const (
 	modelsFetchTimeout    = 30 * time.Second
 	modelsRefreshInterval = 3 * time.Hour
+	gpt55ContextLength    = 1050000
 )
 
 var modelsURLs = []string{
@@ -179,6 +180,7 @@ func fetchModelsFromRemote(ctx context.Context) (*staticModelsJSON, string) {
 			log.Warnf("models parse failed from %s: %v", url, err)
 			continue
 		}
+		applyLocalModelOverrides(&parsed)
 		if err := validateModelsCatalog(&parsed); err != nil {
 			log.Warnf("models validate failed from %s: %v", url, err)
 			continue
@@ -299,6 +301,7 @@ func loadModelsFromBytes(data []byte, source string) error {
 	if err := json.Unmarshal(data, &parsed); err != nil {
 		return fmt.Errorf("%s: decode models catalog: %w", source, err)
 	}
+	applyLocalModelOverrides(&parsed)
 	if err := validateModelsCatalog(&parsed); err != nil {
 		return fmt.Errorf("%s: validate models catalog: %w", source, err)
 	}
@@ -307,6 +310,19 @@ func loadModelsFromBytes(data []byte, source string) error {
 	modelsCatalogStore.data = &parsed
 	modelsCatalogStore.mu.Unlock()
 	return nil
+}
+
+func applyLocalModelOverrides(data *staticModelsJSON) {
+	if data == nil {
+		return
+	}
+	for _, models := range [][]*ModelInfo{data.CodexFree, data.CodexTeam, data.CodexPlus, data.CodexPro} {
+		for _, model := range models {
+			if model != nil && model.ID == "gpt-5.5" {
+				model.ContextLength = gpt55ContextLength
+			}
+		}
+	}
 }
 
 func getModels() *staticModelsJSON {
