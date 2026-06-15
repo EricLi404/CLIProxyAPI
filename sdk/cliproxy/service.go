@@ -3333,6 +3333,7 @@ func buildOpenAICompatibilityConfigModels(compat *config.OpenAICompatibility) []
 			thinking = &registry.ThinkingSupport{Levels: []string{"low", "medium", "high"}}
 		}
 		info.Thinking = thinking
+		info.ContextLength = model.ContextLength
 		info.SupportedInputModalities = normalizeCompatConfigModalities(model.InputModalities)
 		info.SupportedOutputModalities = normalizeCompatConfigModalities(model.OutputModalities)
 		models = append(models, info)
