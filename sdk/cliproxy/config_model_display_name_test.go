@@ -87,6 +87,25 @@ func TestBuildCodexConfigModelsPreservesBuiltinDisplayNames(t *testing.T) {
 	}
 }
 
+func TestBuildCodexConfigModelsPreservesContextLength(t *testing.T) {
+	models := buildCodexConfigModels(&config.CodexKey{Models: []config.CodexModel{{
+		Name:          "deepseek-v4-pro",
+		Alias:         "deepseek-v4-pro",
+		ContextLength: 1000000,
+	}}})
+
+	for _, model := range models {
+		if model.ID != "deepseek-v4-pro" {
+			continue
+		}
+		if model.ContextLength != 1000000 {
+			t.Fatalf("ContextLength = %d, want 1000000", model.ContextLength)
+		}
+		return
+	}
+	t.Fatal("expected deepseek-v4-pro model")
+}
+
 func TestBuildConfigModelsDisplayNameFallback(t *testing.T) {
 	model := buildClaudeConfigModels(&config.ClaudeKey{Models: []config.ClaudeModel{{
 		Name: "claude-upstream", Alias: "claude-catalog",
