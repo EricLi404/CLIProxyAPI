@@ -544,6 +544,9 @@ type CodexModel struct {
 
 	// ForceMapping rewrites upstream response model fields back to Alias.
 	ForceMapping bool `yaml:"force-mapping,omitempty" json:"force-mapping,omitempty"`
+
+	// ContextLength overrides the model context window exposed to compatible clients.
+	ContextLength int `yaml:"context-length,omitempty" json:"context-length,omitempty"`
 }
 
 func (m CodexModel) GetName() string       { return m.Name }
