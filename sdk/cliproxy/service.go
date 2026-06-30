@@ -2609,7 +2609,25 @@ func buildCodexConfigModels(entry *config.CodexKey) []*ModelInfo {
 	if entry == nil {
 		return nil
 	}
-	return registry.WithCodexBuiltins(buildConfigModels(entry.Models, "openai", "openai"))
+	// Build context-length map from config before models are deduplicated.
+	ctxLen := make(map[string]int, len(entry.Models))
+	for _, m := range entry.Models {
+		alias := strings.TrimSpace(m.Alias)
+		if alias == "" {
+			alias = strings.TrimSpace(m.Name)
+		}
+		if alias != "" && m.ContextLength > 0 {
+			ctxLen[strings.ToLower(alias)] = m.ContextLength
+		}
+	}
+	models := buildConfigModels(entry.Models, "openai", "openai")
+	// Apply per-model ContextLength override from config.
+	for _, m := range models {
+		if cl, ok := ctxLen[strings.ToLower(m.ID)]; ok && cl > 0 {
+			m.ContextLength = cl
+		}
+	}
+	return registry.WithCodexBuiltins(models)
 }
 
 func rewriteModelInfoName(name, oldID, newID string) string {
