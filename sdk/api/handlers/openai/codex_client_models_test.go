@@ -248,7 +248,7 @@ func TestBuildCodexClientModelsAppliesContextLengthToTemplateModel(t *testing.T)
 		"object":         "model",
 		"owned_by":       "heybox",
 		"context_length": 700000,
-	}})
+	}}, nil)
 
 	if len(models) != 1 {
 		t.Fatalf("models len = %d, want 1", len(models))
@@ -270,7 +270,7 @@ func TestBuildCodexClientModelsPrefersConfiguredContextLengthForDefaultModel(t *
 		"object":         "model",
 		"owned_by":       "glm",
 		"context_length": 1000000,
-	}})
+	}}, nil)
 
 	if len(models) != 1 {
 		t.Fatalf("models len = %d, want 1", len(models))
