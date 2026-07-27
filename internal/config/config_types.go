@@ -455,6 +455,9 @@ type CodexModel struct {
 	// ForceMapping rewrites upstream response model fields back to Alias.
 	ForceMapping bool `yaml:"force-mapping,omitempty" json:"force-mapping,omitempty"`
 
+	// ContextLength overrides the model context window exposed to compatible clients.
+	ContextLength int `yaml:"context-length,omitempty" json:"context-length,omitempty"`
+
 	// Thinking configures the thinking/reasoning capability for this model.
 	Thinking *registry.ThinkingSupport `yaml:"thinking,omitempty" json:"thinking,omitempty"`
 }
@@ -616,6 +619,9 @@ type OpenAICompatibilityModel struct {
 
 	// OutputModalities declares supported output modalities when known (e.g. text, image).
 	OutputModalities []string `yaml:"output-modalities,omitempty" json:"output-modalities,omitempty"`
+
+	// ContextLength overrides the model context window exposed to compatible clients.
+	ContextLength int `yaml:"context-length,omitempty" json:"context-length,omitempty"`
 
 	// Thinking configures the thinking/reasoning capability for this model.
 	// If nil, the model defaults to level-based reasoning with levels ["low", "medium", "high"].

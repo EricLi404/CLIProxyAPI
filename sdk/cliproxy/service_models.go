@@ -714,6 +714,7 @@ func buildOpenAICompatibilityConfigModels(compat *config.OpenAICompatibility) []
 			thinkingSupport = &registry.ThinkingSupport{Levels: []string{"low", "medium", "high"}}
 		}
 		info.Thinking = modelconfig.NormalizeThinkingSupport(thinkingSupport)
+		info.ContextLength = model.ContextLength
 		info.SupportedInputModalities = normalizeCompatConfigModalities(model.InputModalities)
 		info.SupportedOutputModalities = normalizeCompatConfigModalities(model.OutputModalities)
 		models = append(models, info)
@@ -810,6 +811,7 @@ func buildCodexConfigModels(entry *config.CodexKey) []*ModelInfo {
 
 	models := buildConfigModels(entry.Models, "openai", "openai")
 	configuredDisplayNames := make(map[string]string, len(entry.Models))
+	configuredContextLengths := make(map[string]int, len(entry.Models))
 	seenConfiguredModels := make(map[string]struct{}, len(entry.Models))
 	for i := range entry.Models {
 		model := entry.Models[i]
@@ -830,6 +832,9 @@ func buildCodexConfigModels(entry *config.CodexKey) []*ModelInfo {
 		if displayName != "" {
 			configuredDisplayNames[key] = displayName
 		}
+		if model.ContextLength > 0 {
+			configuredContextLengths[key] = model.ContextLength
+		}
 	}
 	for _, model := range models {
 		if model == nil {
@@ -837,6 +842,9 @@ func buildCodexConfigModels(entry *config.CodexKey) []*ModelInfo {
 		}
 		if displayName, ok := configuredDisplayNames[strings.ToLower(model.ID)]; ok {
 			model.DisplayName = displayName
+		}
+		if contextLength, ok := configuredContextLengths[strings.ToLower(model.ID)]; ok {
+			model.ContextLength = contextLength
 		}
 	}
 	return models
