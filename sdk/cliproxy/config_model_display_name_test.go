@@ -96,6 +96,23 @@ func TestBuildCodexConfigModelsPreservesBuiltinDisplayNames(t *testing.T) {
 	}
 }
 
+func TestBuildCodexConfigModelsPreservesConfiguredContextLength(t *testing.T) {
+	models := buildCodexConfigModels(&config.CodexKey{Models: []config.CodexModel{
+		{Name: "gpt-5.4", ContextLength: 1050000},
+	}})
+
+	for _, model := range models {
+		if model.ID != "gpt-5.4" {
+			continue
+		}
+		if model.ContextLength != 1050000 {
+			t.Fatalf("ContextLength = %d, want 1050000", model.ContextLength)
+		}
+		return
+	}
+	t.Fatal("missing builtin model gpt-5.4")
+}
+
 func TestBuildConfigModelsDisplayNameFallback(t *testing.T) {
 	model := buildClaudeConfigModels(&config.ClaudeKey{Models: []config.ClaudeModel{{
 		Name: "claude-upstream", Alias: "claude-catalog",

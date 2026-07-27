@@ -212,6 +212,51 @@ func TestRegisterModelsForAuth_OpenAICompatibilityInputModalities(t *testing.T) 
 	}
 }
 
+func TestRegisterModelsForAuth_OpenAICompatibilityModelContextLength(t *testing.T) {
+	service := &Service{
+		cfg: &config.Config{
+			OpenAICompatibility: []config.OpenAICompatibility{
+				{
+					Name:    "glm",
+					BaseURL: "https://example.com/v1",
+					Models: []config.OpenAICompatibilityModel{
+						{Name: "glm-5.2", ContextLength: 1000000},
+					},
+				},
+			},
+		},
+	}
+	auth := &coreauth.Auth{
+		ID:       "auth-openai-compat-context-length",
+		Provider: "openai-compatibility",
+		Status:   coreauth.StatusActive,
+		Attributes: map[string]string{
+			"auth_kind":    "api_key",
+			"compat_name":  "glm",
+			"provider_key": "glm",
+		},
+	}
+
+	modelRegistry := internalregistry.GetGlobalRegistry()
+	modelRegistry.UnregisterClient(auth.ID)
+	t.Cleanup(func() {
+		modelRegistry.UnregisterClient(auth.ID)
+	})
+
+	service.registerModelsForAuth(context.Background(), auth)
+
+	models := modelRegistry.GetModelsForClient(auth.ID)
+	for _, model := range models {
+		if model != nil && strings.TrimSpace(model.ID) == "glm-5.2" {
+			if model.ContextLength != 1000000 {
+				t.Fatalf("context length = %d, want 1000000", model.ContextLength)
+			}
+			return
+		}
+	}
+	t.Fatal("expected glm-5.2 to be registered")
+}
+
 func TestRegisterModelsForAuth_AntigravityFetchesWebSearchCapability(t *testing.T) {
 	var sawFetch bool
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
